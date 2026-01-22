@@ -268,8 +268,8 @@ function CircleClick(Button, X, Y)
     end)
 end
 
-local Vict = {}
-function Vict:MakeNotify(NotifyConfig)
+local vict = {}
+function vict:MakeNotify(NotifyConfig)
     local NotifyConfig = NotifyConfig or {}
     NotifyConfig.Title = NotifyConfig.Title or "Victoria Hub"
     NotifyConfig.Description = NotifyConfig.Description or "Notification"
@@ -468,7 +468,7 @@ function Vict:MakeNotify(NotifyConfig)
 end
 
 function notif(msg, delay, color, title, desc)
-    return Vict:MakeNotify({
+    return vict:MakeNotify({
         Title = title or "Victoria Hub",
         Description = desc or "Notification",
         Content = msg or "Content",
@@ -477,21 +477,21 @@ function notif(msg, delay, color, title, desc)
     })
 end
 
-function Vict:Window(GuiConfig)
+function vict:Window(GuiConfig)
     GuiConfig              = GuiConfig or {}
     GuiConfig.Title        = GuiConfig.Title or "Victoria Hub"
-    GuiConfig.Footer       = GuiConfig.Footer or "VictoriaHub >:D"
+    GuiConfig.Footer       = GuiConfig.Footer or "VictHub >:D"
     GuiConfig.Color        = GuiConfig.Color or Color3.fromRGB(255, 0, 255)
     GuiConfig["Tab Width"] = GuiConfig["Tab Width"] or 120
     GuiConfig.Version      = GuiConfig.Version or 1
     GuiConfig.Icon         = GuiConfig.Icon or "rbxassetid://80659354137631"
 
     CURRENT_VERSION        = GuiConfig.Version
-    LoadConfigFromFile()
+    -- LoadConfigFromFile()
 
     local GuiFunc = {}
 
-    local Victoria = Instance.new("ScreenGui");
+    local Victoriahub = Instance.new("ScreenGui");
     local DropShadowHolder = Instance.new("Frame");
     local DropShadow = Instance.new("ImageLabel");
     local Main = Instance.new("Frame");
@@ -518,10 +518,10 @@ function Vict:Window(GuiConfig)
     local ThemeImage = Instance.new("ImageLabel");
     local UICornerTheme = Instance.new("UICorner");
 
-    Victoria.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    Victoria.Name = "Victoria"
-    Victoria.ResetOnSpawn = false
-    Victoria.Parent = game:GetService("CoreGui")
+    Victoriahub.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    Victoriahub.Name = "Victoriahub"
+    Victoriahub.ResetOnSpawn = false
+    Victoriahub.Parent = game:GetService("CoreGui")
 
     DropShadowHolder.BackgroundTransparency = 1
     DropShadowHolder.BorderSizePixel = 0
@@ -534,10 +534,10 @@ function Vict:Window(GuiConfig)
     end
     DropShadowHolder.ZIndex = 0
     DropShadowHolder.Name = "DropShadowHolder"
-    DropShadowHolder.Parent = Victoria
+    DropShadowHolder.Parent = Victoriahub
 
-    DropShadowHolder.Position = UDim2.new(0, (Victoria.AbsoluteSize.X // 2 - DropShadowHolder.Size.X.Offset // 2), 0,
-        (Victoria.AbsoluteSize.Y // 2 - DropShadowHolder.Size.Y.Offset // 2))
+    DropShadowHolder.Position = UDim2.new(0, (Victoriahub.AbsoluteSize.X // 2 - DropShadowHolder.Size.X.Offset // 2), 0,
+        (Victoriahub.AbsoluteSize.Y // 2 - DropShadowHolder.Size.Y.Offset // 2))
     DropShadow.Image = "rbxassetid://6015897843"
     DropShadow.ImageColor3 = Color3.fromRGB(15, 15, 15)
     DropShadow.ImageTransparency = 1
@@ -601,15 +601,28 @@ function Vict:Window(GuiConfig)
     ThemeImage.Parent = Main
     ThemeImage.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     ThemeImage.BackgroundTransparency = 1
-    ThemeImage.Position = UDim2.new(0, 0, 0, 0)
-    ThemeImage.Size = UDim2.new(1, 0, 1, 0)
+    
+    -- Mengatur posisi ke kanan dan ukuran agar tidak terlalu raksasa
+    ThemeImage.AnchorPoint = Vector2.new(1, 0.5)
+    ThemeImage.Position = UDim2.new(1, 0, 0.5, 0)
+    ThemeImage.Size = UDim2.new(0.7, 0, 1, 0) -- Hanya mengambil 70% lebar jendela
+    
     ThemeImage.ZIndex = 0
     ThemeImage.Image = "rbxassetid://78769566766000"
-    ThemeImage.ImageTransparency = GuiConfig.ThemeTransparency or 0.5
+    
+    -- transparansi lebih halus agar UI tetap bersih
+    ThemeImage.ImageTransparency = 0.6 
+    
+    -- Menggunakan ScaleType Stretch atau Fit agar gambar menyesuaikan bingkai
     ThemeImage.ScaleType = Enum.ScaleType.Crop
-
-    UICornerTheme.CornerRadius = UDim.new(0, 10)
-    UICornerTheme.Parent = ThemeImage
+    
+    -- Tambahkan UIGradient agar gambar menyatu dengan background (Fade effect)
+    local Gradient = Instance.new("UIGradient")
+    Gradient.Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 1), -- Transparan di kiri
+        NumberSequenceKeypoint.new(1, 0)  -- Muncul di kanan
+    })
+    Gradient.Parent = ThemeImage
 
     TextLabel.Font = Enum.Font.GothamBold
     TextLabel.Text = GuiConfig.Title
@@ -789,8 +802,8 @@ function Vict:Window(GuiConfig)
     ScrollTab.ChildRemoved:Connect(UpdateSize1)
 
     function GuiFunc:DestroyGui()
-        if CoreGui:FindFirstChild("Victoria") then
-            Victoria:Destroy()
+        if CoreGui:FindFirstChild("Victoriahub") then
+            Victoriahub:Destroy()
         end
     end
 
@@ -901,7 +914,7 @@ function Vict:Window(GuiConfig)
             end
             ScriptLoaded = false
             NoclipEnabled = false
-            if Victoria then Victoria:Destroy() end
+            if Victoriahub then Victoriahub:Destroy() end
             if game.CoreGui:FindFirstChild("ToggleUIButton") then
                 game.CoreGui.ToggleUIButton:Destroy()
             end
@@ -1786,7 +1799,7 @@ function Vict:Window(GuiConfig)
                     InputBox.FocusLost:Connect(function()
                         PanelFunc.Value = InputBox.Text
                         ConfigData[configKey] = InputBox.Text
-                         SaveConfig()
+                        -- SaveConfig()
                     end)
                 end
 
@@ -2091,7 +2104,7 @@ function Vict:Window(GuiConfig)
                 SliderTitle.Font = Enum.Font.GothamBold
                 SliderTitle.Text = SliderConfig.Title
                 SliderTitle.TextColor3 = Color3.fromRGB(230.77499270439148, 230.77499270439148, 230.77499270439148)
-                SliderTitle.TextSize = 13
+                SliderTitle.TextSize = 15
                 SliderTitle.TextXAlignment = Enum.TextXAlignment.Left
                 SliderTitle.TextYAlignment = Enum.TextYAlignment.Top
                 SliderTitle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -2106,7 +2119,7 @@ function Vict:Window(GuiConfig)
                 SliderContent.Font = Enum.Font.GothamBold
                 SliderContent.Text = SliderConfig.Content
                 SliderContent.TextColor3 = Color3.fromRGB(255, 255, 255)
-                SliderContent.TextSize = 12
+                SliderContent.TextSize = 14
                 SliderContent.TextTransparency = 0.6000000238418579
                 SliderContent.TextXAlignment = Enum.TextXAlignment.Left
                 SliderContent.TextYAlignment = Enum.TextYAlignment.Bottom
@@ -2149,7 +2162,7 @@ function Vict:Window(GuiConfig)
                 TextBox.Font = Enum.Font.GothamBold
                 TextBox.Text = "90"
                 TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-                TextBox.TextSize = 13
+                TextBox.TextSize = 15
                 TextBox.TextWrapped = true
                 TextBox.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
                 TextBox.BackgroundTransparency = 0.9990000128746033
@@ -2216,7 +2229,7 @@ function Vict:Window(GuiConfig)
 
                     SliderConfig.Callback(Value)
                     ConfigData[configKey] = Value
-                    SaveConfig()
+                    -- SaveConfig()
                 end
 
                 SliderFrame.InputBegan:Connect(function(Input)
@@ -2270,6 +2283,7 @@ function Vict:Window(GuiConfig)
                 end)
                 SliderFunc:Set(SliderConfig.Default)
                 CountItem = CountItem + 1
+                SliderFunc.Type = "Slider"
                 Elements[configKey] = SliderFunc
                 return SliderFunc
             end
@@ -2277,6 +2291,7 @@ function Vict:Window(GuiConfig)
             function Items:AddInput(InputConfig)
                 local InputConfig = InputConfig or {}
                 InputConfig.Title = InputConfig.Title or "Title"
+                InputConfig.Placeholder = InputConfig.Placeholder or nil
                 InputConfig.Content = InputConfig.Content or ""
                 InputConfig.Callback = InputConfig.Callback or function() end
                 InputConfig.Default = InputConfig.Default or ""
@@ -2311,7 +2326,7 @@ function Vict:Window(GuiConfig)
                 InputTitle.Font = Enum.Font.GothamBold
                 InputTitle.Text = InputConfig.Title or "TextBox"
                 InputTitle.TextColor3 = Color3.fromRGB(230.77499270439148, 230.77499270439148, 230.77499270439148)
-                InputTitle.TextSize = 13
+                InputTitle.TextSize = 15
                 InputTitle.TextXAlignment = Enum.TextXAlignment.Left
                 InputTitle.TextYAlignment = Enum.TextYAlignment.Top
                 InputTitle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -2326,7 +2341,7 @@ function Vict:Window(GuiConfig)
                 InputContent.Font = Enum.Font.GothamBold
                 InputContent.Text = InputConfig.Content or "This is a TextBox"
                 InputContent.TextColor3 = Color3.fromRGB(255, 255, 255)
-                InputContent.TextSize = 12
+                InputContent.TextSize = 14
                 InputContent.TextTransparency = 0.6000000238418579
                 InputContent.TextWrapped = true
                 InputContent.TextXAlignment = Enum.TextXAlignment.Left
@@ -2372,10 +2387,10 @@ function Vict:Window(GuiConfig)
                 InputTextBox.Font = Enum.Font.GothamBold
                 InputTextBox.PlaceholderColor3 = Color3.fromRGB(120.00000044703484, 120.00000044703484,
                     120.00000044703484)
-                InputTextBox.PlaceholderText = "Input Here"
+                InputTextBox.PlaceholderText = InputConfig.Placeholder or "Input Here"
                 InputTextBox.Text = InputConfig.Default
                 InputTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-                InputTextBox.TextSize = 12
+                InputTextBox.TextSize = 14
                 InputTextBox.TextXAlignment = Enum.TextXAlignment.Left
                 InputTextBox.AnchorPoint = Vector2.new(0, 0.5)
                 InputTextBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -2386,12 +2401,13 @@ function Vict:Window(GuiConfig)
                 InputTextBox.Size = UDim2.new(1, -10, 1, -8)
                 InputTextBox.Name = "InputTextBox"
                 InputTextBox.Parent = InputFrame
+                InputTextBox.ClearTextOnFocus = false
                 function InputFunc:Set(Value)
                     InputTextBox.Text = Value
                     InputFunc.Value = Value
                     InputConfig.Callback(Value)
                     ConfigData[configKey] = Value
-                    SaveConfig()
+                    -- SaveConfig()
                 end
 
                 InputFunc:Set(InputFunc.Value)
@@ -2400,6 +2416,7 @@ function Vict:Window(GuiConfig)
                     InputFunc:Set(InputTextBox.Text)
                 end)
                 CountItem = CountItem + 1
+                InputFunc.Type = "Input"
                 Elements[configKey] = InputFunc
                 return InputFunc
             end
@@ -2807,4 +2824,4 @@ function Vict:Window(GuiConfig)
     return Tabs
 end
 
-return Victoria
+return vict
