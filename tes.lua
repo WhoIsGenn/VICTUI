@@ -161,6 +161,9 @@ task.spawn(function()
     end
 end)
 
+-- Variabel untuk track apakah script baru pertama kali di load
+local isFirstLoad = true
+
 -- ==================== TAB 1: INFO ====================
 local Tab1 = Window:AddTab({
     Name = "Info",
@@ -190,6 +193,7 @@ local playerSection = Tab2:AddSection("Player Features")
 
 -- SPEED INPUT
 local walkSpeedValue = 16
+local lastWalkSpeedValue = 16
 playerSection:AddInput({
     Title = "Walk Speed",
     Default = "16",
@@ -201,6 +205,7 @@ playerSection:AddInput({
             if humanoid then 
                 humanoid.WalkSpeed = num 
                 notif("Walk Speed set to " .. num, 3, Color3.fromRGB(0, 255, 0))
+                lastWalkSpeedValue = num
             end
         else
             notif("Invalid Walk Speed!", 3, Color3.fromRGB(255, 0, 0))
@@ -210,6 +215,7 @@ playerSection:AddInput({
 
 -- JUMP POWER INPUT
 local jumpPowerValue = 50
+local lastJumpPowerValue = 50
 playerSection:AddInput({
     Title = "Jump Power",
     Default = "50",
@@ -221,6 +227,7 @@ playerSection:AddInput({
             if humanoid then 
                 humanoid.JumpPower = num 
                 notif("Jump Power set to " .. num, 3, Color3.fromRGB(0, 255, 0))
+                lastJumpPowerValue = num
             end
         else
             notif("Invalid Jump Power!", 3, Color3.fromRGB(255, 0, 0))
@@ -237,7 +244,9 @@ playerSection:AddToggle({
     Default = false,
     Callback = function(state)
         _G.InfiniteJump = state
-        notif("Infinite Jump: " .. (state and "Enabled" or "Disabled"), 3, state and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0))
+        if not isFirstLoad then
+            notif("Infinite Jump: " .. (state and "Enabled" or "Disabled"), 3, state and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0))
+        end
     end
 })
 
@@ -281,7 +290,9 @@ playerSection:AddToggle({
             end)
         end
         
-        notif("Noclip: " .. (state and "Enabled" or "Disabled"), 3, state and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0))
+        if not isFirstLoad then
+            notif("Noclip: " .. (state and "Enabled" or "Disabled"), 3, state and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0))
+        end
     end
 })
 
@@ -308,17 +319,21 @@ playerSection:AddToggle({
             humanoid.AutoRotate = false
             humanoid.PlatformStand = true
             hrp.Anchored = true
-            notif("Character Frozen", 3, Color3.fromRGB(0, 255, 0))
+            if not isFirstLoad then
+                notif("Character Frozen", 3, Color3.fromRGB(0, 255, 0))
+            end
         else
-            humanoid.WalkSpeed = 16
-            humanoid.JumpPower = 50
+            humanoid.WalkSpeed = walkSpeedValue
+            humanoid.JumpPower = jumpPowerValue
             humanoid.AutoRotate = true
             humanoid.PlatformStand = false
             hrp.Anchored = false
             if lastCFrame then
                 hrp.CFrame = lastCFrame
             end
-            notif("Character Unfrozen", 3, Color3.fromRGB(255, 0, 0))
+            if not isFirstLoad then
+                notif("Character Unfrozen", 3, Color3.fromRGB(255, 0, 0))
+            end
         end
     end
 })
@@ -352,7 +367,9 @@ playerSection:AddToggle({
                     end)
                 end
             end)
-            notif("Animations Disabled", 3, Color3.fromRGB(0, 255, 0))
+            if not isFirstLoad then
+                notif("Animations Disabled", 3, Color3.fromRGB(0, 255, 0))
+            end
         else
             if animConn then animConn:Disconnect(); animConn = nil end
             local animate = character:FindFirstChild("Animate")
@@ -360,7 +377,9 @@ playerSection:AddToggle({
             humanoid:ChangeState(Enum.HumanoidStateType.Physics)
             task.wait()
             humanoid:ChangeState(Enum.HumanoidStateType.Running)
-            notif("Animations Enabled", 3, Color3.fromRGB(255, 0, 0))
+            if not isFirstLoad then
+                notif("Animations Enabled", 3, Color3.fromRGB(255, 0, 0))
+            end
         end
     end
 })
@@ -394,7 +413,9 @@ playerSection:AddToggle({
             waterPlatform.Transparency = 1
             waterPlatform.Size = Vector3.new(15, 1, 15)
             waterPlatform.Parent = workspace
-            notif("Walk on Water: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            if not isFirstLoad then
+                notif("Walk on Water: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            end
 
             walkOnWaterConnection = game:GetService("RunService").RenderStepped:Connect(function()
                 if not isWalkOnWater then return end
@@ -430,7 +451,9 @@ playerSection:AddToggle({
                 end
             end)
         else
-            notif("Walk on Water: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            if not isFirstLoad then
+                notif("Walk on Water: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            end
         end
     end
 })
@@ -547,10 +570,14 @@ fishingSection:AddToggle({
                     end
                 end)
             end
-            notif("Auto Fishing: " .. mode .. " Mode", 3, Color3.fromRGB(0, 255, 0))
+            if not isFirstLoad then
+                notif("Auto Fishing: " .. mode .. " Mode", 3, Color3.fromRGB(0, 255, 0))
+            end
         else
             autooff()
-            notif("Auto Fishing: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            if not isFirstLoad then
+                notif("Auto Fishing: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            end
         end
     end
 })
@@ -602,9 +629,13 @@ fishingSection:AddToggle({
         _G.AutoEquipRod = v
         if v then
             rod()
-            notif("Auto Equip Rod: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            if not isFirstLoad then
+                notif("Auto Equip Rod: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            end
         else
-            notif("Auto Equip Rod: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            if not isFirstLoad then
+                notif("Auto Equip Rod: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            end
         end
     end
 })
@@ -620,7 +651,9 @@ fishingSection:AddToggle({
         if require(RS.Packages.Replion).Client:GetReplion("Data") then
             require(RS.Packages.Net):RemoteFunction("UpdateFishingRadar"):InvokeServer(s)
         end
-        notif("Bypass Radar: " .. (s and "Enabled" or "Disabled"), 3, s and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0))
+        if not isFirstLoad then
+            notif("Bypass Radar: " .. (s and "Enabled" or "Disabled"), 3, s and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0))
+        end
     end
 })
 
@@ -631,10 +664,14 @@ fishingSection:AddToggle({
     Callback = function(s)
         if s then 
             net["RF/EquipOxygenTank"]:InvokeServer(105)
-            notif("Oxygen Tank Equipped", 3, Color3.fromRGB(0, 255, 0))
+            if not isFirstLoad then
+                notif("Oxygen Tank Equipped", 3, Color3.fromRGB(0, 255, 0))
+            end
         else 
             net["RF/UnequipOxygenTank"]:InvokeServer()
-            notif("Oxygen Tank Unequipped", 3, Color3.fromRGB(255, 0, 0))
+            if not isFirstLoad then
+                notif("Oxygen Tank Unequipped", 3, Color3.fromRGB(255, 0, 0))
+            end
         end
     end
 })
@@ -718,7 +755,9 @@ blatantV1Section:AddToggle({
                     task.wait(0.1)
                 end
             end)
-            notif("Blatant V1: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            if not isFirstLoad then
+                notif("Blatant V1: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            end
         else
             if m then task.cancel(m) end
             if n then task.cancel(n) end
@@ -727,7 +766,9 @@ blatantV1Section:AddToggle({
             pcall(function()
                 net["RF/CancelFishingInputs"]:InvokeServer()
             end)
-            notif("Blatant V1: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            if not isFirstLoad then
+                notif("Blatant V1: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            end
         end
     end
 })
@@ -795,10 +836,14 @@ blatantV2Section:AddToggle({
                     task.wait(math.max(_G.ReelSuper))
                 end
             end)
-            notif("Blatant V2: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            if not isFirstLoad then
+                notif("Blatant V2: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            end
         else
             isSuperInstantRunning = false
-            notif("Blatant V2: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            if not isFirstLoad then
+                notif("Blatant V2: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            end
         end
     end
 })
@@ -879,12 +924,16 @@ autoPerfectionSection:AddToggle({
         if s then
             FC.RequestFishingMinigameClick = function() end
             FC.RequestChargeFishingRod = function() end
-            notif("Stable Result: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            if not isFirstLoad then
+                notif("Stable Result: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            end
         else
             net["RF/UpdateAutoFishingState"]:InvokeServer(false)
             FC.RequestFishingMinigameClick = oc
             FC.RequestChargeFishingRod = orc
-            notif("Stable Result: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            if not isFirstLoad then
+                notif("Stable Result: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            end
         end
     end
 })
@@ -1142,7 +1191,9 @@ sellSection:AddToggle({
     Default = false,
     Callback = function(state)
         AutoSell = state
-        notif("Auto Sell: " .. (state and "Enabled" or "Disabled"), 3, state and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0))
+        if not isFirstLoad then
+            notif("Auto Sell: " .. (state and "Enabled" or "Disabled"), 3, state and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0))
+        end
     end
 })
 
@@ -1234,7 +1285,9 @@ favSection:AddToggle({
     Default = false,
     Callback = function(state)
         GlobalFav.AutoFavoriteEnabled = state
-        notif("Auto Favorite: " .. (state and "Enabled" or "Disabled"), 3, state and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0))
+        if not isFirstLoad then
+            notif("Auto Favorite: " .. (state and "Enabled" or "Disabled"), 3, state and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0))
+        end
     end
 })
 
@@ -1325,14 +1378,18 @@ eventSection:AddToggle({
                     task.wait(2)
                 end
             end)
-            notif("Auto Mysterious Cave: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            if not isFirstLoad then
+                notif("Auto Mysterious Cave: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            end
         else
             AutoOpenMaze = false
             if AutoOpenMazeTask then
                 task.cancel(AutoOpenMazeTask)
                 AutoOpenMazeTask = nil
             end
-            notif("Auto Mysterious Cave: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            if not isFirstLoad then
+                notif("Auto Mysterious Cave: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            end
         end
     end
 })
@@ -1344,7 +1401,9 @@ eventSection:AddToggle({
     Default = false,
     Callback = function(v)
         AutoClaimPirateChest = v
-        notif("Auto Claim Pirate Chest: " .. (v and "Enabled" or "Disabled"), 3, v and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0))
+        if not isFirstLoad then
+            notif("Auto Claim Pirate Chest: " .. (v and "Enabled" or "Disabled"), 3, v and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0))
+        end
     end
 })
 
@@ -1407,7 +1466,9 @@ totemSection:AddToggle({
     Callback = function(enabled)
         AutoTotemEnabled = enabled
         if not enabled then 
-            notif("Auto Place Totem: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            if not isFirstLoad then
+                notif("Auto Place Totem: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            end
             return 
         end
 
@@ -1431,7 +1492,9 @@ totemSection:AddToggle({
             end
         end)
         
-        notif("Auto Place Totem: Enabled (" .. TotemDelayMinutes .. " minutes)", 3, Color3.fromRGB(0, 255, 0))
+        if not isFirstLoad then
+            notif("Auto Place Totem: Enabled (" .. TotemDelayMinutes .. " minutes)", 3, Color3.fromRGB(0, 255, 0))
+        end
     end
 })
 
@@ -1506,7 +1569,9 @@ webhookSection:AddToggle({
     Default = false,
     Callback = function(state)
         DetectNewFishActive = state
-        notif("Fish Webhook: " .. (state and "Enabled" or "Disabled"), 3, state and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0))
+        if not isFirstLoad then
+            notif("Fish Webhook: " .. (state and "Enabled" or "Disabled"), 3, state and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0))
+        end
     end
 })
 
@@ -1685,9 +1750,13 @@ weatherSection:AddToggle({
                     task.wait(1)
                 end
             end)
-            notif("Auto Buy Weather: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            if not isFirstLoad then
+                notif("Auto Buy Weather: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            end
         else
-            notif("Auto Buy Weather: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            if not isFirstLoad then
+                notif("Auto Buy Weather: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            end
         end
     end
 })
@@ -2070,9 +2139,13 @@ eventTeleportSection:AddToggle({
         
         if enabled then
             task.spawn(runTeleportLoop)
-            notif("Auto Event Teleport: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            if not isFirstLoad then
+                notif("Auto Event Teleport: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            end
         else
-            notif("Auto Event Teleport: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            if not isFirstLoad then
+                notif("Auto Event Teleport: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            end
         end
     end
 })
@@ -2310,7 +2383,9 @@ miscSection:AddToggle({
     Callback = function(v)
         PingEnabled = v
         if Frame then Frame.Visible = v end
-        notif("Ping Display: " .. (v and "Enabled" or "Disabled"), 3, v and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0))
+        if not isFirstLoad then
+            notif("Ping Display: " .. (v and "Enabled" or "Disabled"), 3, v and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0))
+        end
     end
 })
 
@@ -2351,11 +2426,15 @@ miscSection:AddToggle({
         if v then
             H.Text = D.ch
             L.Text = D.cl
-            notif("Custom Hide: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            if not isFirstLoad then
+                notif("Custom Hide: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            end
         else
             H.Text = D.h
             L.Text = D.l
-            notif("Custom Hide: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            if not isFirstLoad then
+                notif("Custom Hide: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            end
         end
     end
 })
@@ -2391,11 +2470,15 @@ miscSection:AddToggle({
         if v then
             S.ui.h.Text = HN
             S.ui.l.Text = HL
-            notif("Default Hide: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            if not isFirstLoad then
+                notif("Default Hide: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            end
         else
             S.ui.h.Text = S.ui.dh
             S.ui.l.Text = S.ui.dl
-            notif("Default Hide: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            if not isFirstLoad then
+                notif("Default Hide: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            end
         end
     end
 })
@@ -2412,11 +2495,15 @@ miscSection:AddToggle({
         if s then
             LocalPlayer.CameraMaxZoomDistance = math.huge
             LocalPlayer.CameraMinZoomDistance = .5
-            notif("Infinite Zoom: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            if not isFirstLoad then
+                notif("Infinite Zoom: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            end
         else
             LocalPlayer.CameraMaxZoomDistance = originalZoom[1] or 128
             LocalPlayer.CameraMinZoomDistance = originalZoom[2] or .5
-            notif("Infinite Zoom: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            if not isFirstLoad then
+                notif("Infinite Zoom: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            end
         end
     end
 })
@@ -2448,7 +2535,9 @@ miscSection:AddToggle({
     Default = true,
     Callback = function(v) 
         AutoReconnect = v
-        notif("Auto Reconnect: " .. (v and "Enabled" or "Disabled"), 3, v and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0))
+        if not isFirstLoad then
+            notif("Auto Reconnect: " .. (v and "Enabled" or "Disabled"), 3, v and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0))
+        end
     end
 })
 
@@ -2465,7 +2554,9 @@ miscSection:AddToggle({
     Default = false,
     Callback = function(s) 
         AntiStaffEnabled = s
-        notif("Anti Staff: " .. (s and "Enabled" or "Disabled"), 3, s and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0))
+        if not isFirstLoad then
+            notif("Anti Staff: " .. (s and "Enabled" or "Disabled"), 3, s and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0))
+        end
     end
 })
 
@@ -2687,10 +2778,14 @@ graphicsSection:AddToggle({
         
         if v then
             applyBoost()
-            notif("FPS Boost: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            if not isFirstLoad then
+                notif("FPS Boost: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            end
         else
             restoreBoost()
-            notif("FPS Boost: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            if not isFirstLoad then
+                notif("FPS Boost: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            end
         end
     end
 })
@@ -2729,11 +2824,15 @@ graphicsSection:AddToggle({
                 local f = getPopup()
                 if f then f.Visible = false; f:Destroy() end
             end)
-            notif("Fish Popup Removal: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            if not isFirstLoad then
+                notif("Fish Popup Removal: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            end
         else
             if PopupConn then PopupConn:Disconnect(); PopupConn = nil end
             if RemoteConn then RemoteConn:Disconnect(); RemoteConn = nil end
-            notif("Fish Popup Removal: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            if not isFirstLoad then
+                notif("Fish Popup Removal: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            end
         end
     end
 })
@@ -2760,11 +2859,15 @@ graphicsSection:AddToggle({
             frame.Size = UDim2.fromScale(1,1)
             frame.BackgroundColor3 = Color3.new(1,1,1)
             frame.BorderSizePixel = 0
-            notif("3D Rendering: Disabled", 3, Color3.fromRGB(0, 255, 0))
+            if not isFirstLoad then
+                notif("3D Rendering: Disabled", 3, Color3.fromRGB(0, 255, 0))
+            end
         elseif G then
             G:Destroy()
             G = nil
-            notif("3D Rendering: Enabled", 3, Color3.fromRGB(255, 0, 0))
+            if not isFirstLoad then
+                notif("3D Rendering: Enabled", 3, Color3.fromRGB(255, 0, 0))
+            end
         end
     end
 })
@@ -2825,10 +2928,14 @@ graphicsSection:AddToggle({
         VFXState.on = state
         if state then 
             disableVFX()
-            notif("VFX Hidden: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            if not isFirstLoad then
+                notif("VFX Hidden: Enabled", 3, Color3.fromRGB(0, 255, 0))
+            end
         else 
             restoreVFX()
-            notif("VFX Hidden: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            if not isFirstLoad then
+                notif("VFX Hidden: Disabled", 3, Color3.fromRGB(255, 0, 0))
+            end
         end
     end
 })
@@ -2852,12 +2959,16 @@ graphicsSection:AddToggle({
 
             local f = workspace:FindFirstChild("CosmeticFolder")
             if f then pcall(f.ClearAllChildren, f) end
-            notif("Skin Effects: Removed", 3, Color3.fromRGB(0, 255, 0))
+            if not isFirstLoad then
+                notif("Skin Effects: Removed", 3, Color3.fromRGB(0, 255, 0))
+            end
         else
             VFXController.Handle = ORI.H
             VFXController.RenderAtPoint = ORI.P
             VFXController.RenderInstance = ORI.I
-            notif("Skin Effects: Restored", 3, Color3.fromRGB(255, 0, 0))
+            if not isFirstLoad then
+                notif("Skin Effects: Restored", 3, Color3.fromRGB(255, 0, 0))
+            end
         end
     end
 })
@@ -2896,9 +3007,13 @@ graphicsSection:AddToggle({
                 _G.GuiControl:SetHUDVisibility(true)
                 _G.ProximityPromptService.Enabled = true
             end
-            notif("Cutscene: Disabled", 3, Color3.fromRGB(0, 255, 0))
+            if not isFirstLoad then
+                notif("Cutscene: Disabled", 3, Color3.fromRGB(0, 255, 0))
+            end
         else
-            notif("Cutscene: Enabled", 3, Color3.fromRGB(255, 0, 0))
+            if not isFirstLoad then
+                notif("Cutscene: Enabled", 3, Color3.fromRGB(255, 0, 0))
+            end
         end
     end
 })
@@ -2932,6 +3047,16 @@ scriptSection:AddButton({
         notif("Infinite Yield loaded", 3, Color3.fromRGB(0, 255, 0))
     end
 })
+
+-- Di paling bawah script
+task.spawn(function()
+    task.wait(1) -- Tunggu 1 detik biar semua element pasti udah dibuat
+    
+    -- Setelah semua UI dibuat, kita set isFirstLoad ke false
+    -- Jadi notifikasi baru akan muncul ketika user berinteraksi
+    task.wait(0.5)
+    isFirstLoad = false
+end)
 
 -- Di paling bawah script
 task.spawn(function()
