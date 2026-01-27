@@ -1,51 +1,66 @@
 local HttpService = game:GetService("HttpService")
 
-local ConfigPath = "VictoriaHub/Config/" 
+local ConfigPath = "VictoriaHub/Config/"
 
 if not isfolder("VictoriaHub") then makefolder("VictoriaHub") end
 if not isfolder("VictoriaHub/Config") then makefolder("VictoriaHub/Config") end
 
 ConfigData = {}
-Elements = {} 
+Elements = {}
 CURRENT_VERSION = nil
 
+getgenv().ConfigLoading = true
+
+-- ================= SAVE =================
 function SaveConfig(name)
+    if getgenv().ConfigLoading then return end
+
     local fileName = ConfigPath .. (name or "Default") .. ".json"
-    
+
     if writefile then
         ConfigData._version = CURRENT_VERSION
         writefile(fileName, HttpService:JSONEncode(ConfigData))
     end
 end
 
+-- ================= LOAD FILE =================
 function LoadConfigFromFile(name)
     local fileName = ConfigPath .. (name or "Default") .. ".json"
-    
+
     if isfile and isfile(fileName) then
         local success, result = pcall(function()
             return HttpService:JSONDecode(readfile(fileName))
         end)
-        
+
         if success and type(result) == "table" then
             ConfigData = result
-            
+
             if LoadConfigElements then
                 LoadConfigElements()
             end
+
+            task.delay(0.1, function()
+                getgenv().ConfigLoading = false
+            end)
+
             return true
         end
     end
+
+    getgenv().ConfigLoading = false
     return false
 end
 
+-- ================= APPLY KE UI =================
 function LoadConfigElements()
     for key, element in pairs(Elements) do
         local targetValue = ConfigData[key]
-        
+
         if element.Set then
             if targetValue ~= nil then
                 element:Set(targetValue)
             else
+                -- fallback default
                 if element.Type == "Toggle" then
                     element:Set(false)
                 elseif element.Type == "Slider" then
