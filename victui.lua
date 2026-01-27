@@ -1799,7 +1799,7 @@ function vict:Window(GuiConfig)
                     InputBox.FocusLost:Connect(function()
                         PanelFunc.Value = InputBox.Text
                         ConfigData[configKey] = InputBox.Text
-                        -- SaveConfig()
+                         SaveConfig()
                     end)
                 end
 
@@ -2229,7 +2229,7 @@ function vict:Window(GuiConfig)
 
                     SliderConfig.Callback(Value)
                     ConfigData[configKey] = Value
-                    -- SaveConfig()
+                     SaveConfig()
                 end
 
                 SliderFrame.InputBegan:Connect(function(Input)
@@ -2407,7 +2407,7 @@ function vict:Window(GuiConfig)
                     InputFunc.Value = Value
                     InputConfig.Callback(Value)
                     ConfigData[configKey] = Value
-                    -- SaveConfig()
+                     SaveConfig()
                 end
 
                 InputFunc:Set(InputFunc.Value)
@@ -2681,7 +2681,7 @@ function vict:Window(GuiConfig)
                     end
 
                     ConfigData[configKey] = DropdownFunc.Value
-                    -- SaveConfig()
+                     SaveConfig()
 
                     local texts = {}
                     for _, Drop in ScrollSelect:GetChildren() do
